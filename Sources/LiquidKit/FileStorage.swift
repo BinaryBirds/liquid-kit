@@ -1,12 +1,11 @@
 //
-//  File.swift
-//  
+//  FileStorage.swift
+//  LiquidKit
 //
 //  Created by Tibor Bodecs on 2020. 04. 28..
 //
 
-import Foundation
-import NIO
+import struct Foundation.Data
 
 public protocol FileStorage {
     var context: FileStorageContext { get }

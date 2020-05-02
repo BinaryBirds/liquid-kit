@@ -8,6 +8,7 @@ let package = Package(
     ],
     products: [
         .library(name: "LiquidKit", targets: ["LiquidKit"]),
+        .library(name: "LiquidKitDynamic", type: .dynamic, targets: ["LiquidKit"]),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-nio.git", from: "2.0.0"),

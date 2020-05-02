@@ -1,13 +1,9 @@
 //
-//  File.swift
-//  
+//  FileStorageContext.swift
+//  LiquidKit
 //
 //  Created by Tibor Bodecs on 2020. 04. 28..
 //
-
-import NIO
-import Logging
-import Foundation
 
 public struct FileStorageContext {
     public let configuration: FileStorageConfiguration
