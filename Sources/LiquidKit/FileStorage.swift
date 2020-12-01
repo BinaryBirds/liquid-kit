@@ -20,7 +20,7 @@ public protocol FileStorage {
     func createDirectory(key: String) -> EventLoopFuture<Void>
     
     // list the contents of a given object for a key
-    func list(key: String) -> EventLoopFuture<[String]>
+    func list(key: String?) -> EventLoopFuture<[String]>
     
     // deletes the data under the given key
     func delete(key: String) -> EventLoopFuture<Void>
