@@ -12,9 +12,15 @@ public protocol FileStorage {
 
     //returns a key as a full url
     func resolve(key: String) -> String
-    
+
     // uploads the data under the given key
     func upload(key: String, data: Data) -> EventLoopFuture<String>
+    
+    // create a new directory for a given key
+    func createDirectory(key: String) -> EventLoopFuture<Void>
+    
+    // list the contents of a given object for a key
+    func list(key: String) -> EventLoopFuture<[String]>
     
     // deletes the data under the given key
     func delete(key: String) -> EventLoopFuture<Void>

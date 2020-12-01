@@ -30,81 +30,82 @@ public final class FileStorages {
     }
     
     public func use(_ factory: FileStorageConfigurationFactory, as id: FileStorageID, isDefault: Bool? = nil) {
-        self.use(factory.make(), as: id, isDefault: isDefault)
+        use(factory.make(), as: id, isDefault: isDefault)
     }
     
     public func use(_ config: FileStorageConfiguration, as id: FileStorageID, isDefault: Bool? = nil) {
-        self.lock.lock()
-        defer { self.lock.unlock() }
-        self.configurations[id] = config
-        if isDefault == true || (self.defaultID == nil && isDefault != false) {
-            self.defaultID = id
+        lock.lock()
+        defer { lock.unlock() }
+        configurations[id] = config
+        if isDefault == true || (defaultID == nil && isDefault != false) {
+            defaultID = id
         }
     }
 
     public func `default`(to id: FileStorageID) {
-        self.lock.lock()
-        defer { self.lock.unlock() }
-        self.defaultID = id
+        lock.lock()
+        defer { lock.unlock() }
+        defaultID = id
     }
     
     public func configuration(for id: FileStorageID? = nil) -> FileStorageConfiguration? {
-        self.lock.lock()
-        defer { self.lock.unlock() }
-        return self.configurations[id ?? self._requireDefaultID()]
+        lock.lock()
+        defer { lock.unlock() }
+        return configurations[id ?? _requireDefaultID()]
     }
     
     public func fileStorage(_ id: FileStorageID? = nil, logger: Logger, on eventLoop: EventLoop) -> FileStorage? {
-        self.lock.lock()
-        defer { self.lock.unlock() }
-        let id = id ?? self._requireDefaultID()
+        lock.lock()
+        defer { lock.unlock() }
+        let id = id ?? _requireDefaultID()
         var logger = logger
         logger[metadataKey: "file-storage-id"] = .string(id.string)
-        let configuration = self._requireConfiguration(for: id)
+        let configuration = _requireConfiguration(for: id)
         let context = FileStorageContext(
             configuration: configuration,
             logger: logger,
             eventLoop: eventLoop
         )
         let driver: FileStorageDriver
-        if let existing = self.drivers[id] {
+        if let existing = drivers[id] {
             driver = existing
-        } else {
+        }
+        else {
             let new = configuration.makeDriver(for: self)
-            self.drivers[id] = new
+            drivers[id] = new
             driver = new
         }
         return driver.makeStorage(with: context)
     }
 
     public func reinitialize(_ id: FileStorageID? = nil) {
-        self.lock.lock()
-        defer { self.lock.unlock() }
-        let id = id ?? self._requireDefaultID()
-        if let driver = self.drivers[id] {
-            self.drivers[id] = nil
+        lock.lock()
+        defer { lock.unlock() }
+        let id = id ?? _requireDefaultID()
+        if let driver = drivers[id] {
+            drivers[id] = nil
             driver.shutdown()
         }
     }
 
     public func shutdown() {
-        self.lock.lock()
-        defer { self.lock.unlock() }
-        for driver in self.drivers.values {
+        lock.lock()
+        defer { lock.unlock() }
+        for driver in drivers.values {
             driver.shutdown()
         }
-        self.drivers = [:]
+        drivers = [:]
     }
 
     private func _requireConfiguration(for id: FileStorageID) -> FileStorageConfiguration {
-        guard let configuration = self.configurations[id] else {
+        guard let configuration = configurations[id] else {
             fatalError("No file storage configuration registered for \(id).")
         }
         return configuration
     }
 
     private func _requireDefaultID() -> FileStorageID {
-        guard let id = self.defaultID else {
+        guard let id = defaultID else {
             fatalError("No default file storage configured.")
         }
         return id
