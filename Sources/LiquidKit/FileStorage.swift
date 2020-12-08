@@ -7,6 +7,10 @@
 
 import struct Foundation.Data
 
+public enum LiquidError: Swift.Error {
+    case keyNotExists
+}
+
 public protocol FileStorage {
     var context: FileStorageContext { get }
 
