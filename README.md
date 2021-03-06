@@ -1,75 +1,131 @@
 # LiquidKit
 
-Common interfaces for the Liquid file storage.
+An abstract FileStorage solution, based on the SwiftNIO framework.
+
+### Drivers and Vapor 4 support
+
+Currently available drivers:
+
+- [local](https://github.com/BinaryBirds/liquid-local-driver)
+- [AWS S3](https://github.com/BinaryBirds/liquid-aws-s3-driver)
+
+LiquidKit is also compatible with Vapor 4 through the [Liquid](https://github.com/BinaryBirds/liquid) repository, that contains Vapor specific extensions.
 
 
-## Usage example
+## Usage with SwiftNIO
 
-Add dependencies:
+You can use the Liquid FileStorage driver directly with SwiftNIO, here's a possible usage example:   
 
-```swift
-// swift-tools-version:5.3
-import PackageDescription
+```
+/// setup thread pool
+let elg = MultiThreadedEventLoopGroup(numberOfThreads: 1)
+let pool = NIOThreadPool(numberOfThreads: 1)
+pool.start()
 
-let package = Package(
-    name: "myProject",
-    platforms: [
-       .macOS(.v10_15)
-    ],
-    dependencies: [
-        // 💧 A server-side Swift web framework.
-        .package(url: "https://github.com/vapor/vapor.git", from: "4.30.0"),
-        .package(url: "https://github.com/binarybirds/liquid.git", from: "1.1.0"),
-        .package(url: "https://github.com/binarybirds/liquid-local-driver.git", from: "1.1.0"),
-    ],
-    targets: [
-        .target(name: "App", dependencies: [
-            .product(name: "Vapor", package: "vapor"),
-            .product(name: "Liquid", package: "liquid"),
-            .product(name: "LiquidLocalDriver", package: "liquid-local-driver"),
-        ]),
-    ]
-)
+/// create fs  
+let fileio = NonBlockingFileIO(threadPool: pool)
+let storages = FileStorages(fileio: fileio)
+storages.use(.custom(exampleConfigVariable: "assets"), as: .custom)
+let fs = storages.fileStorage(.custom, logger: .init(label: "[test-logger]"), on: elg.next())!
+
+/// test file upload
+let key = "test.txt"
+let data = Data("file storage test".utf8)
+let res = try fs.upload(key: key, data: data).wait()
+
 ```
 
-Driver configuration
+
+## How to implement a custom driver?
+
+Drivers should implement the following protocols:
+
+### FileStorageID
+
+Used to uniquely identify the file storage driver.
 
 ```swift
-import Liquid
-import LiquidLocalDriver
-
-public func configure(_ app: Application) throws {
-
-    app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
-
-    // using the local driver
-    app.fileStorages.use(.local(publicUrl: "http://localhost:8080/",
-                                publicPath: app.directory.publicDirectory,
-                                workDirectory: "assets"), as: .local)
+public extension FileStorageID {
+    static var customDriver: FileStorageID { .init(string: "custom-driver-identifier") }
 }
 ```
 
-File upload example:
+### FileStorageConfiguration
+
+A custom set of configuration variables required to initialize or setup the driver. 
+
+```swift
+struct LiquidCustomStorageConfiguration: FileStorageConfiguration {
+    let exampleConfigVariable: String
+
+    func makeDriver(for storages: FileStorages) -> FileStorageDriver {
+        return LiquidCustomStorageDriver(fileio: storages.fileio, configuration: self)
+    }
+}
+```
+
+### FileStorageDriver
+
+The file storage driver used to create the underlying storage object (that implements the API methods) using the configuration and context.
+
+```swift
+struct LiquidCustomStorageDriver: FileStorageDriver {
+
+    let fileio: NonBlockingFileIO
+    let configuration: LiquidCustomStorageConfiguration
+
+    func makeStorage(with context: FileStorageContext) -> FileStorage {
+        LiquidCustomStorage(fileio: fileio, configuration: configuration, context: context)
+    }
+    
+    func shutdown() {
+
+    }
+}
+```
+
+### FileStorage
+
+Actual storage implementation that handles the necessary API methods.
 
 ```swift
 
-func testUpload(req: Request) -> EventLoopFuture<String> {
-    let data: Data! = //...
-    let key = "path/to/my/file.txt"
-    return req.fs.upload(key: key, data: data)
-    // returns the full public url of the uploaded image
+struct LiquidCustomStorage: FileStorage {
+
+    let fileio: NonBlockingFileIO
+    let configuration: LiquidCustomStorageConfiguration
+    let context: FileStorageContext
+    
+    
+    init(fileio: NonBlockingFileIO, configuration: LiquidCustomStorageConfiguration, context: FileStorageContext) {
+        self.fileio = fileio
+        self.configuration = configuration
+        self.context = context
+    }
+
+    // MARK: - api
+
+    func resolve(key: String) -> String { /* ... */ }
+    func upload(key: String, data: Data) -> EventLoopFuture<String> { /* ... */ }
+    func createDirectory(key: String) -> EventLoopFuture<Void> { /* ... */ }
+    func list(key: String?) -> EventLoopFuture<[String]> { /* ... */ }
+    func copy(key source: String, to destination: String) -> EventLoopFuture<String> { /* ... */ }
+    func move(key source: String, to destination: String) -> EventLoopFuture<String> { /* ... */ }
+    func delete(key: String) -> EventLoopFuture<Void> { /* ... */ }
+    func exists(key: String) -> EventLoopFuture<Bool> { /* ... */ }
 }
-
-// resolve public url based on a key
-// func resolve(key: String) -> String
-req.fs.resolve(key: myImageKey)
-
-// delete file based on a key
-// func delete(key: String) -> EventLoopFuture<Void>
-req.fs.delete(key: myImageKey)
 ```
 
+### FileStorageConfigurationFactory
 
-## License
+An extension on the FileStorageConfigurationFactory object that helps you to create the custom driver with the necessary config values.
 
-[WTFPL](LICENSE) - Do what the fuck you want to.
+```swift
+public extension FileStorageConfigurationFactory {
+
+    static func custom(exampleConfigVariable: String) -> FileStorageConfigurationFactory {
+        .init { LiquidCustomStorageConfiguration(exampleConfigVariable) }
+    }
+}
+```
+

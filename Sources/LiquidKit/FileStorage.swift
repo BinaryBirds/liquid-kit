@@ -7,11 +7,16 @@
 
 import struct Foundation.Data
 
+/// Liquid errors
 public enum LiquidError: Swift.Error {
+    /// key not exists error
     case keyNotExists
 }
 
+/// file storage protocol, must be implemented by the drivers
 public protocol FileStorage {
+    
+    /// fs context
     var context: FileStorageContext { get }
 
     /// returns a key as a full url
