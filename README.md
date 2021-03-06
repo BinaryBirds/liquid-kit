@@ -2,7 +2,20 @@
 
 An abstract FileStorage solution, based on the SwiftNIO framework.
 
-### Drivers and Vapor 4 support
+
+## Key-based file storage 
+
+- The main concept of LiquidKit is somewhat similar how AWS S3 buckets work.
+- You can use keys (relative path components) to store files using various drivers.
+- Keys should be designed to work with all the supported drivers.
+- Drivers should provide a resolution mechanism to return the absolute URL for a given key.
+
+e.g. 
+
+the key "test.txt" could be resolved to "http://localhost:8080/assets/test.txt" when using the local fs driver.
+
+
+## Drivers and Vapor 4 support
 
 Currently available drivers:
 
@@ -39,6 +52,7 @@ let res = try fs.upload(key: key, data: data).wait()
 ## How to implement a custom driver?
 
 Drivers should implement the following protocols:
+
 
 ### FileStorageID
 
