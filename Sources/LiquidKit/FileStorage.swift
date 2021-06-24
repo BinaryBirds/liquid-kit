@@ -25,6 +25,9 @@ public protocol FileStorage {
     /// uploads the data under the given key
     func upload(key: String, data: Data) -> EventLoopFuture<String>
 
+    /// return a file content for
+    func getObject(key source: String) -> EventLoopFuture<Data?>
+
     /// copy a file using a source key to a given destination key
     func copy(key: String, to: String) -> EventLoopFuture<String>
     
