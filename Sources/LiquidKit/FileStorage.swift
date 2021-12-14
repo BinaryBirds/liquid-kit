@@ -15,7 +15,7 @@ public enum LiquidError: Swift.Error {
 
 /// file storage protocol, must be implemented by the drivers
 public protocol FileStorage {
-    
+
     /// fs context
     var context: FileStorageContext { get }
 
@@ -23,26 +23,26 @@ public protocol FileStorage {
     func resolve(key: String) -> String
 
     /// uploads the data under the given key
-    func upload(key: String, data: Data) -> EventLoopFuture<String>
+    func upload(key: String, data: Data) async -> String
 
     /// return a file content for
-    func getObject(key source: String) -> EventLoopFuture<Data?>
+    func getObject(key source: String) async -> Data?
 
     /// copy a file using a source key to a given destination key
-    func copy(key: String, to: String) -> EventLoopFuture<String>
+    func copy(key: String, to: String) async -> String
     
     /// move a file using a source key to a given destination key
-    func move(key: String, to: String) -> EventLoopFuture<String>
+    func move(key: String, to: String) async -> String
 
     /// create a new directory for a given key
-    func createDirectory(key: String) -> EventLoopFuture<Void>
+    func createDirectory(key: String) async
     
     /// list the contents of a given object for a key
-    func list(key: String?) -> EventLoopFuture<[String]>
+    func list(key: String?) async -> [String]
     
     /// deletes the data under the given key
-    func delete(key: String) -> EventLoopFuture<Void>
+    func delete(key: String) async
     
     /// check if a given key exists
-    func exists(key: String) -> EventLoopFuture<Bool>
+    func exists(key: String) async -> Bool
 }
