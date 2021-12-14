@@ -120,13 +120,13 @@ struct LiquidCustomStorage: FileStorage {
     // MARK: - api
 
     func resolve(key: String) -> String { /* ... */ }
-    func upload(key: String, data: Data) -> EventLoopFuture<String> { /* ... */ }
-    func createDirectory(key: String) -> EventLoopFuture<Void> { /* ... */ }
-    func list(key: String?) -> EventLoopFuture<[String]> { /* ... */ }
-    func copy(key source: String, to destination: String) -> EventLoopFuture<String> { /* ... */ }
-    func move(key source: String, to destination: String) -> EventLoopFuture<String> { /* ... */ }
-    func delete(key: String) -> EventLoopFuture<Void> { /* ... */ }
-    func exists(key: String) -> EventLoopFuture<Bool> { /* ... */ }
+    func upload(key: String, data: Data) async -> String { /* ... */ }
+    func createDirectory(key: String) async { /* ... */ }
+    func list(key: String?) async -> [String] { /* ... */ }
+    func copy(key source: String, to destination: String) async -> String { /* ... */ }
+    func move(key source: String, to destination: String) async -> String { /* ... */ }
+    func delete(key: String) async { /* ... */ }
+    func exists(key: String) async -> Bool { /* ... */ }
 }
 ```
 
