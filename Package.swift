@@ -4,7 +4,7 @@ import PackageDescription
 let package = Package(
     name: "liquid-kit",
     platforms: [
-       .macOS(.v12)
+       .macOS(.v10_15)
     ],
     products: [
         .library(name: "LiquidKit", targets: ["LiquidKit"]),
