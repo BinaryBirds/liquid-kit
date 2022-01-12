@@ -45,6 +45,10 @@ public final class FileStorages {
     
     // MARK: - public api
     
+    public func ids() -> Set<FileStorageID> {
+        return self.lock.withLock { Set(self.configurations.keys) }
+    }
+    
     /// init a FileStorages object with a fileio argument
     public init(fileio: NonBlockingFileIO) {
         self.fileio = fileio
