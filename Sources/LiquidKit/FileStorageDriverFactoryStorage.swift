@@ -33,6 +33,9 @@ public final class FileStorageDriverFactoryStorage {
     /// Non-blocking fileio reference
     public let fileio: NonBlockingFileIO
     
+    /// The byte buffer allocator instance
+    public let byteBufferAllocator: ByteBufferAllocator
+    
     /// Shared event loop group reference.
     public let eventLoopGroup: EventLoopGroup
 
@@ -45,10 +48,13 @@ public final class FileStorageDriverFactoryStorage {
     ///
     public init(
         eventLoopGroup: EventLoopGroup,
+        byteBufferAllocator: ByteBufferAllocator,
         fileio: NonBlockingFileIO
     ) {
         self.eventLoopGroup = eventLoopGroup
+        self.byteBufferAllocator = byteBufferAllocator
         self.fileio = fileio
+
         self.configurations = [:]
         self.drivers = [:]
         self.lock = .init()

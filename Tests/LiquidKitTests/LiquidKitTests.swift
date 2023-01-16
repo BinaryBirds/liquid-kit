@@ -21,6 +21,7 @@ final class LiquidKitTests: XCTestCase {
 
         let driverFactoryStorage = FileStorageDriverFactoryStorage(
             eventLoopGroup: eventLoopGroup,
+            byteBufferAllocator: .init(),
             fileio: fileio
         )
 
