@@ -2,7 +2,6 @@
 
 An abstract FileStorage solution, based on the SwiftNIO framework.
 
-
 ## Key-based file storage 
 
 - The main concept of LiquidKit is somewhat similar how AWS S3 buckets work.
@@ -13,16 +12,6 @@ An abstract FileStorage solution, based on the SwiftNIO framework.
 e.g. 
 
 the key "test.txt" could be resolved to "http://localhost:8080/assets/test.txt" when using the local fs driver.
-
-
-## Drivers and Vapor 4 support
-
-Currently available drivers:
-
-- [local](https://github.com/BinaryBirds/liquid-local-driver)
-- [AWS S3](https://github.com/BinaryBirds/liquid-aws-s3-driver)
-
-LiquidKit is also compatible with Vapor 4 through the [Liquid](https://github.com/BinaryBirds/liquid) repository, that contains Vapor specific extensions.
 
 
 ## Usage with SwiftNIO
@@ -137,3 +126,11 @@ extension FileStorageDriverConfigurationFactory {
 }
 ```
 
+## Current driver implementations and Vapor 4 support
+
+Currently available drivers:
+
+- [local](https://github.com/BinaryBirds/liquid-local-driver)
+- [AWS S3](https://github.com/BinaryBirds/liquid-aws-s3-driver)
+
+LiquidKit is also compatible with Vapor 4 through the [Liquid](https://github.com/BinaryBirds/liquid) repository, that contains Vapor specific extensions.
