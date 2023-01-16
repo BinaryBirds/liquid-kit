@@ -29,116 +29,110 @@ LiquidKit is also compatible with Vapor 4 through the [Liquid](https://github.co
 
 You can use the Liquid FileStorage driver directly with SwiftNIO, here's a possible usage example:   
 
-```
-/// setup thread pool
-let elg = MultiThreadedEventLoopGroup(numberOfThreads: 1)
+```swift
+import NIO
+import Logger
+import LiquidKit
+
+let logger = Logger(label: "test-logger")
+let eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: 1)
 let pool = NIOThreadPool(numberOfThreads: 1)
+let fileio = NonBlockingFileIO(threadPool: pool)
 pool.start()
 
-/// create fs  
-let fileio = NonBlockingFileIO(threadPool: pool)
-let storages = FileStorages(fileio: fileio)
-storages.use(.custom(exampleConfigVariable: "assets"), as: .custom)
-let fs = storages.fileStorage(.custom, logger: .init(label: "[test-logger]"), on: elg.next())!
+let driverFactoryStorage = FileStorageDriverFactoryStorage(
+    eventLoopGroup: eventLoopGroup,
+    fileio: fileio
+)
 
-/// test file upload
-let key = "test.txt"
-let data = Data("file storage test".utf8)
-let res = try fs.upload(key: key, data: data).wait()
+driverFactoryStorage.use(.mock(), as: .mock)
 
+let fs = driverFactoryStorage.makeDriver(
+    logger: logger,
+    on: eventLoopGroup.next()
+)
 ```
 
 
 ## How to implement a custom driver?
 
-Drivers should implement the following protocols:
+Packages should follow these instructions to create a new driver.
 
 
-### FileStorageID
+### FileStorageDriverID extension
 
-Used to uniquely identify the file storage driver.
+Create a unique identifier that represents your driver.
 
 ```swift
-public extension FileStorageID {
-    static var customDriver: FileStorageID { .init(string: "custom-driver-identifier") }
+extension FileStorageDriverID {
+
+    static let mock: FileStorageDriverID = .init(string: "mock")
 }
 ```
 
-### FileStorageConfiguration
+### FileStorageDriver implementation
 
-A custom set of configuration variables required to initialize or setup the driver. 
+Actual driver implementation that should contain necessary API methods.
 
 ```swift
-struct LiquidCustomStorageConfiguration: FileStorageConfiguration {
-    let exampleConfigVariable: String
+struct MockFileStorageDriver: FileStorageDriver {
 
-    func makeDriver(for storages: FileStorages) -> FileStorageDriver {
-        return LiquidCustomStorageDriver(fileio: storages.fileio, configuration: self)
+    var context: FileStorageDriverContext
+    var callStack: [String]
+    
+    init(
+        context: FileStorageDriverContext
+    ) {
+        self.context = context
     }
-}
+    
+    // IMPLEMENT ALL THE REQUIRED PROTOCOL METHODS
+
 ```
 
-### FileStorageDriver
+### FileStorageDriverFactory implementation
 
-The file storage driver used to create the underlying storage object (that implements the API methods) using the configuration and context.
+The factory that'll create the driver instances.
 
 ```swift
-struct LiquidCustomStorageDriver: FileStorageDriver {
+struct MockFileStorageDriverFactory: FileStorageDriverFactory {
 
-    let fileio: NonBlockingFileIO
-    let configuration: LiquidCustomStorageConfiguration
-
-    func makeStorage(with context: FileStorageContext) -> FileStorage {
-        LiquidCustomStorage(fileio: fileio, configuration: configuration, context: context)
+    func makeDriver(
+        using context: FileStorageDriverContext
+    ) -> FileStorageDriver {
+        MockFileStorageDriver(context: context)
     }
     
     func shutdown() {
-
+        // do nothing...
     }
 }
 ```
 
-### FileStorage
+### FileStorageDriverConfiguration implementation
 
-Actual storage implementation that handles the necessary API methods.
+A custom driver configuration that you can use to create the driver factory. 
 
 ```swift
-
-struct LiquidCustomStorage: FileStorage {
-
-    let fileio: NonBlockingFileIO
-    let configuration: LiquidCustomStorageConfiguration
-    let context: FileStorageContext
+struct MockFileStorageDriverConfiguration: FileStorageDriverConfiguration {
     
-    
-    init(fileio: NonBlockingFileIO, configuration: LiquidCustomStorageConfiguration, context: FileStorageContext) {
-        self.fileio = fileio
-        self.configuration = configuration
-        self.context = context
+    func makeDriverFactory(
+        using: FileStorageDriverFactoryStorage
+    ) -> FileStorageDriverFactory {
+        MockFileStorageDriverFactory()
     }
-
-    // MARK: - api
-
-    func resolve(key: String) -> String { /* ... */ }
-    func upload(key: String, data: Data) async throws -> String { /* ... */ }
-    func createDirectory(key: String) async throws { /* ... */ }
-    func list(key: String?) async throws -> [String] { /* ... */ }
-    func copy(key source: String, to destination: String) async throws -> String { /* ... */ }
-    func move(key source: String, to destination: String) async throws -> String { /* ... */ }
-    func delete(key: String) async throws { /* ... */ }
-    func exists(key: String) async -> Bool { /* ... */ }
 }
 ```
 
-### FileStorageConfigurationFactory
+### FileStorageConfigurationFactory extension
 
-An extension on the FileStorageConfigurationFactory object that helps you to create the custom driver with the necessary config values.
+A helper to create the actual driver configuration using the wrapper factory.
 
 ```swift
-public extension FileStorageConfigurationFactory {
-
-    static func custom(exampleConfigVariable: String) -> FileStorageConfigurationFactory {
-        .init { LiquidCustomStorageConfiguration(exampleConfigVariable) }
+extension FileStorageDriverConfigurationFactory {
+    
+    static func mock() -> FileStorageDriverConfigurationFactory {
+        .init { MockFileStorageDriverConfiguration() }
     }
 }
 ```
