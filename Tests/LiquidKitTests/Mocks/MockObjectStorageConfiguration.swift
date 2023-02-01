@@ -10,7 +10,7 @@ import LiquidKit
 
 struct MockObjectStorageConfiguration: ObjectStorageConfiguration {
     
-    func makeDriverFactory(
+    func make(
         using: ObjectStorages
     ) -> ObjectStorageDriver {
         MockObjectStorageDriver()

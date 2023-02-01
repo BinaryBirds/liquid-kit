@@ -174,7 +174,7 @@ public extension ObjectStorages {
             driver = existing
         }
         else {
-            let new = configuration.makeDriverFactory(using: self)
+            let new = configuration.make(using: self)
             drivers[id] = new
             driver = new
         }

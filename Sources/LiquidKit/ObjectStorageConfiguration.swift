@@ -19,7 +19,7 @@ public protocol ObjectStorageConfiguration {
     /// - Returns:
     ///     The driver factory
     ///
-    func makeDriverFactory(
+    func make(
         using: ObjectStorages
     ) -> ObjectStorageDriver
 }
