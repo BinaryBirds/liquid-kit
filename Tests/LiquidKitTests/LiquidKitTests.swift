@@ -12,25 +12,25 @@ import Logging
 
 final class LiquidKitTests: XCTestCase {
 
-    func createMockDriver() -> MockFileStorageDriver {
+    func createMockDriver() -> MockObjectStorage {
         let logger = Logger(label: "test-logger")
         let eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: 1)
         let pool = NIOThreadPool(numberOfThreads: 1)
         let fileio = NonBlockingFileIO(threadPool: pool)
         pool.start()
 
-        let driverFactoryStorage = FileStorageDriverFactoryStorage(
+        let objectStorages = ObjectStorages(
             eventLoopGroup: eventLoopGroup,
             byteBufferAllocator: .init(),
             fileio: fileio
         )
 
-        driverFactoryStorage.use(.mock(), as: .mock)
+        objectStorages.use(.mock(), as: .mock)
 
-        return driverFactoryStorage.makeDriver(
+        return objectStorages.make(
             logger: logger,
             on: eventLoopGroup.next()
-        )! as! MockFileStorageDriver
+        )! as! MockObjectStorage
     }
 
     func testMockDriverUpload() async throws {

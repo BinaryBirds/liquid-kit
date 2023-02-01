@@ -1,5 +1,5 @@
 //
-//  FileStorageDriverContext.swift
+//  ObjectStorageContext.swift
 //  LiquidKit
 //
 //  Created by Tibor Bodecs on 2020. 04. 28..
@@ -11,10 +11,10 @@ import NIO
 ///
 /// Driver context object
 ///
-public struct FileStorageDriverContext {
+public struct ObjectStorageContext {
 
     /// Driver configuration
-    public let configuration: FileStorageDriverConfiguration
+    public let configuration: ObjectStorageConfiguration
     
     /// Logger instance
     public let logger: Logger
@@ -31,7 +31,7 @@ public struct FileStorageDriverContext {
     ///     - eventLoop: The event loop used to execute events
     ///
     public init(
-        configuration: FileStorageDriverConfiguration,
+        configuration: ObjectStorageConfiguration,
         logger: Logger,
         eventLoop: EventLoop
     ) {

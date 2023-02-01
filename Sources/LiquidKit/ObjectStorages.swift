@@ -1,5 +1,5 @@
 //
-//  FileStorageDriverFactoryStorage.swift
+//  ObjectStorages.swift
 //  LiquidKit
 //
 //  Created by Tibor Bodecs on 2020. 04. 28..
@@ -12,18 +12,18 @@ import NIOConcurrencyHelpers
 ///
 /// Shared driver factory storage
 ///
-public final class FileStorageDriverFactoryStorage {
+public final class ObjectStorages {
 
     // MARK: - private
     
     /// Identifier of the default driver
-    private var defaultID: FileStorageDriverID?
+    private var defaultID: ObjectStorageID?
     
     /// Identifiers and configuration pairs
-    private var configurations: [FileStorageDriverID: FileStorageDriverConfiguration]
+    private var configurations: [ObjectStorageID: ObjectStorageConfiguration]
 
     /// Running drivers, access to this variable must be synchronized
-    private var drivers: [FileStorageDriverID: FileStorageDriverFactory]
+    private var drivers: [ObjectStorageID: ObjectStorageDriver]
 
     /// Lock, to synchronize driver accesses across threads
     private var lock: NIOLock
@@ -61,14 +61,14 @@ public final class FileStorageDriverFactoryStorage {
     }
 }
 
-private extension FileStorageDriverFactoryStorage {
+private extension ObjectStorages {
     
     ///
     /// Returns the existing configuration for an identifier otherwise, this call results in a fatal error
     ///
     func requireConfiguration(
-        for id: FileStorageDriverID
-    ) -> FileStorageDriverConfiguration {
+        for id: ObjectStorageID
+    ) -> ObjectStorageConfiguration {
         guard let configuration = configurations[id] else {
             fatalError("Can't find configuration for file storage `\(id)`.")
         }
@@ -78,7 +78,7 @@ private extension FileStorageDriverFactoryStorage {
     ///
     /// Returns the existing default driver identifier, otherwise call results in a fatal error
     ///
-    func requireDefaultID() -> FileStorageDriverID {
+    func requireDefaultID() -> ObjectStorageID {
         guard let id = defaultID else {
             fatalError("Can't find default file storage.")
         }
@@ -86,12 +86,12 @@ private extension FileStorageDriverFactoryStorage {
     }
 }
 
-public extension FileStorageDriverFactoryStorage {
+public extension ObjectStorages {
     
     ///
     /// The available configuration identifiers
     ///
-    func ids() -> Set<FileStorageDriverID> {
+    func ids() -> Set<ObjectStorageID> {
         return lock.withLock { Set(configurations.keys) }
     }
     
@@ -99,8 +99,8 @@ public extension FileStorageDriverFactoryStorage {
     /// Register a configuration using a factory object with an id, optionally mark it as default configuration
     ///
     func use(
-        _ factory: FileStorageDriverConfigurationFactory,
-        as id: FileStorageDriverID,
+        _ factory: ObjectStorageConfigurationFactory,
+        as id: ObjectStorageID,
         isDefault: Bool? = nil
     ) {
         use(factory.make(), as: id, isDefault: isDefault)
@@ -110,8 +110,8 @@ public extension FileStorageDriverFactoryStorage {
     /// Use a file configuration with an id, optionally mark it as default configuration
     ///
     func use(
-        _ config: FileStorageDriverConfiguration,
-        as id: FileStorageDriverID,
+        _ config: ObjectStorageConfiguration,
+        as id: ObjectStorageID,
         isDefault: Bool? = nil
     ) {
         lock.lock()
@@ -126,7 +126,7 @@ public extension FileStorageDriverFactoryStorage {
     /// Sets the default driver for a given identifier
     ///
     func `default`(
-        to id: FileStorageDriverID
+        to id: ObjectStorageID
     ) {
         lock.lock()
         defer { lock.unlock() }
@@ -143,8 +143,8 @@ public extension FileStorageDriverFactoryStorage {
     ///     The configuration for the driver
     ///
     func configuration(
-        for id: FileStorageDriverID? = nil
-    ) -> FileStorageDriverConfiguration? {
+        for id: ObjectStorageID? = nil
+    ) -> ObjectStorageConfiguration? {
         lock.lock()
         defer { lock.unlock() }
         return configurations[id ?? requireDefaultID()]
@@ -153,23 +153,23 @@ public extension FileStorageDriverFactoryStorage {
     ///
     /// Returns a driver for a given identifier using a logger and an event loop object
     ///
-    func makeDriver(
-        _ id: FileStorageDriverID? = nil,
+    func make(
+        _ id: ObjectStorageID? = nil,
         logger: Logger,
         on eventLoop: EventLoop
-    ) -> FileStorageDriver? {
+    ) -> ObjectStorage? {
         lock.lock()
         defer { lock.unlock() }
         let id = id ?? requireDefaultID()
         var logger = logger
         logger[metadataKey: "file-storage-id"] = .string(id.string)
         let configuration = requireConfiguration(for: id)
-        let context = FileStorageDriverContext(
+        let context = ObjectStorageContext(
             configuration: configuration,
             logger: logger,
             eventLoop: eventLoop
         )
-        let driver: FileStorageDriverFactory
+        let driver: ObjectStorageDriver
         if let existing = drivers[id] {
             driver = existing
         }
@@ -178,14 +178,14 @@ public extension FileStorageDriverFactoryStorage {
             drivers[id] = new
             driver = new
         }
-        return driver.makeDriver(using: context)
+        return driver.make(using: context)
     }
 
     ///
     /// Reinitialize a driver for a given identifier
     ///
     func reinitialize(
-        _ id: FileStorageDriverID? = nil
+        _ id: ObjectStorageID? = nil
     ) {
         lock.lock()
         defer { lock.unlock() }

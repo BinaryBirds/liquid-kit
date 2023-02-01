@@ -1,5 +1,5 @@
 //
-//  FileStorageDriverConfiguration.swift
+//  ObjectStorageConfiguration.swift
 //  LiquidKit
 //
 //  Created by Tibor Bodecs on 2020. 04. 28..
@@ -8,7 +8,7 @@
 ///
 /// Driver configuration protocol for creating abstract driver factory objects
 ///
-public protocol FileStorageDriverConfiguration {
+public protocol ObjectStorageConfiguration {
 
     ///
     /// Creates a new driver factory using the factory storage object
@@ -20,7 +20,7 @@ public protocol FileStorageDriverConfiguration {
     ///     The driver factory
     ///
     func makeDriverFactory(
-        using: FileStorageDriverFactoryStorage
-    ) -> FileStorageDriverFactory
+        using: ObjectStorages
+    ) -> ObjectStorageDriver
 }
 

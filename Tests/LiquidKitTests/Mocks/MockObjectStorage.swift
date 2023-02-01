@@ -1,5 +1,5 @@
 //
-//  MockFileStorageDriver.swift
+//  MockObjectStorage.swift
 //  LiquidKitTests
 //
 //  Created by Tibor Bodecs on 2023. 01. 16..
@@ -8,13 +8,13 @@
 import Foundation
 import LiquidKit
 
-final class MockFileStorageDriver: FileStorageDriver {
+final class MockObjectStorage: ObjectStorage {
 
-    var context: FileStorageDriverContext
+    var context: ObjectStorageContext
     var callStack: [String]
     
     init(
-        context: FileStorageDriverContext
+        context: ObjectStorageContext
     ) {
         self.context = context
         self.callStack = []

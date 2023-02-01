@@ -1,5 +1,5 @@
 //
-//  FileStorageDriverFactory.swift
+//  ObjectStorageDriver.swift
 //  LiquidKit
 //
 //  Created by Tibor Bodecs on 2020. 04. 28..
@@ -8,7 +8,7 @@
 ///
 /// Driver factory, that can create a new driver using a given context
 ///
-public protocol FileStorageDriverFactory {
+public protocol ObjectStorageDriver {
 
     ///
     /// Creates a driver with a given context
@@ -19,9 +19,9 @@ public protocol FileStorageDriverFactory {
     /// - Returns:
     ///     The driver
     ///
-    func makeDriver(
-        using context: FileStorageDriverContext
-    ) -> FileStorageDriver
+    func make(
+        using context: ObjectStorageContext
+    ) -> ObjectStorage
 
     ///
     /// Shuts down the driver

@@ -1,5 +1,5 @@
 //
-//  FileStorageDriver.swift
+//  ObjectStorage.swift
 //  LiquidKit
 //
 //  Created by Tibor Bodecs on 2020. 04. 28..
@@ -8,12 +8,12 @@
 import Foundation
 
 ///
-/// Driver protocol
+/// Object storage protocol
 ///
-public protocol FileStorageDriver {
+public protocol ObjectStorage {
 
-    /// Driver context
-    var context: FileStorageDriverContext { get }
+    /// Object storage context
+    var context: ObjectStorageContext { get }
 
     ///
     /// Resolves a key to a fileURL string

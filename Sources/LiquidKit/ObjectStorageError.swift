@@ -1,5 +1,5 @@
 //
-//  FileStorageDriverError.swift
+//  ObjectStorageError.swift
 //  LiquidKit
 //
 //  Created by Tibor Bodecs on 2023. 01. 16..
@@ -10,13 +10,13 @@ import Foundation
 ///
 /// Driver errors
 ///
-public enum FileStorageDriverError {
+public enum ObjectStorageError {
 
     /// Key not exists error
     case keyNotExists
 }
 
-extension FileStorageDriverError: LocalizedError {
+extension ObjectStorageError: LocalizedError {
     
     public var errorDescription: String? {
         switch self {

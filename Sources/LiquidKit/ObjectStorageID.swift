@@ -1,5 +1,5 @@
 //
-//  FileStorageDriverID.swift
+//  ObjectStorageID.swift
 //  LiquidKit
 //
 //  Created by Tibor Bodecs on 2020. 04. 28..
@@ -8,7 +8,7 @@
 ///
 /// A Hashable, and Codable file storage driver identifier object
 ///
-public struct FileStorageDriverID: Hashable, Codable {
+public struct ObjectStorageID: Hashable, Codable {
     
     /// String representation of the identifier
     public let string: String
