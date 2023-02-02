@@ -6,7 +6,9 @@
 //
 
 import XCTest
+import Foundation
 import NIO
+import NIOFoundationCompat
 import Logging
 @testable import LiquidKit
 
@@ -38,7 +40,12 @@ final class LiquidKitTests: XCTestCase {
 
         let key = "test.txt"
         let data = Data("file storage test".utf8)
-        _ = try await fs.upload(key: key, data: data)
-        XCTAssertEqual(fs.callStack, ["upload(key:data:)"])
+        _ = try await fs.upload(
+            key: key,
+            buffer: .init(data: data),
+            checksum: nil
+        )
+    
+        XCTAssertEqual(fs.callStack, ["upload(key:buffer:checksum:)"])
     }
 }

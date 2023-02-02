@@ -46,7 +46,11 @@ let package = Package(
             dependencies: [
                 .target(
                     name: "LiquidKit"
-                )
+                ),
+                .product(
+                    name: "NIOFoundationCompat",
+                    package: "swift-nio"
+                ),
             ]),
     ]
 )
