@@ -91,7 +91,10 @@ final class MockObjectStorage: ObjectStorage {
         return true
     }
     
-    func download(key source: String) async throws -> ByteBuffer {
+    func download(
+        key: String,
+        range: ClosedRange<UInt>?
+    ) async throws -> ByteBuffer {
         callStack.append(#function)
         return .init()
     }

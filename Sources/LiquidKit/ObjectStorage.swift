@@ -71,7 +71,8 @@ public protocol ObjectStorage {
     ///     The byte buffer representation of the file
     ///
     func download(
-        key source: String
+        key source: String,
+        range: ClosedRange<UInt>?
     ) async throws -> ByteBuffer
 
     ///
