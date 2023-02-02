@@ -5,7 +5,7 @@
 //  Created by Tibor Bodecs on 2020. 04. 28..
 //
 
-import Foundation
+import NIO
 
 ///
 /// Object storage protocol
@@ -15,6 +15,9 @@ public protocol ObjectStorage {
     /// Object storage context
     var context: ObjectStorageContext { get }
 
+    /// Checksum calculator for upload validations
+    func createChecksumCalculator() -> ChecksumCalculator
+
     ///
     /// Resolves a key to a fileURL string
     ///
@@ -22,7 +25,7 @@ public protocol ObjectStorage {
     ///     - key: The unique key for the uploaded file
     ///
     /// - Returns:
-    ///     The file URL as a String value
+    ///     The object URL as a String value
     ///
     func resolve(
         key: String
@@ -33,15 +36,14 @@ public protocol ObjectStorage {
     ///
     /// - Parameters:
     ///     - key: The unique key for the uploaded file
-    ///     - data: The binary data representation of the file
-    ///
-    /// - Returns:
-    ///     The file URL as a String value
+    ///     - buffer: The byte buffer representation of the object
+    ///     - checksum: The checksum to validate object integrity
     ///
     func upload(
         key: String,
-        data: Data
-    ) async throws -> String
+        buffer: ByteBuffer,
+        checksum: String?
+    ) async throws
 
     ///
     /// Check if a given key exists
@@ -66,11 +68,11 @@ public protocol ObjectStorage {
     ///     An error if the key does not exists
     ///
     /// - Returns:
-    ///     The binary data representation of the file
+    ///     The byte buffer representation of the file
     ///
-    func getObject(
+    func download(
         key source: String
-    ) async throws -> Data?
+    ) async throws -> ByteBuffer
 
     ///
     /// Copy a file using a source key to a given destination key
@@ -78,7 +80,7 @@ public protocol ObjectStorage {
     func copy(
         key: String,
         to: String
-    ) async throws -> String
+    ) async throws
     
     ///
     /// Move a file using a source key to a given destination key
@@ -86,15 +88,8 @@ public protocol ObjectStorage {
     func move(
         key: String,
         to: String
-    ) async throws -> String
-
-    ///
-    /// Create a new directory for a given key
-    ///
-    func createDirectory(
-        key: String
     ) async throws
-    
+
     ///
     /// List the contents of a given object for a key
     ///
@@ -107,5 +102,38 @@ public protocol ObjectStorage {
     ///
     func delete(
         key: String
+    ) async throws
+    
+    
+    func create(
+        key: String
+    ) async throws
+    
+    // MARK: - multipart upload
+    
+    func createMultipartUpload(
+        key: String
+    ) async throws -> MultipartUpload.ID
+    
+    
+    func uploadMultipartChunk(
+        key: String,
+        buffer: ByteBuffer,
+        uploadId: MultipartUpload.ID,
+        partNumber: Int
+    ) async throws -> MultipartUpload.Chunk
+
+    
+    func cancelMultipartUpload(
+        key: String,
+        uploadId: MultipartUpload.ID
+    ) async throws
+
+    
+    func completeMultipartUpload(
+        key: String,
+        uploadId: MultipartUpload.ID,
+        checksum: String?,
+        chunks: [MultipartUpload.Chunk]
     ) async throws
 }

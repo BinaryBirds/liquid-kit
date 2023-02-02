@@ -5,23 +5,17 @@
 //  Created by Tibor Bodecs on 2023. 01. 16..
 //
 
-import Foundation
-
 ///
 /// Driver errors
 ///
-public enum ObjectStorageError {
+public enum ObjectStorageError: Error {
 
-    /// Key not exists error
+    /// Key does not exist
     case keyNotExists
-}
-
-extension ObjectStorageError: LocalizedError {
     
-    public var errorDescription: String? {
-        switch self {
-        case .keyNotExists:
-            return "Key not exists"
-        }
-    }
+    /// Invalid checksum
+    case invalidChecksum
+    
+    /// Invalid response
+    case invalidResponse
 }

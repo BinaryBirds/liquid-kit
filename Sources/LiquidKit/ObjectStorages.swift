@@ -162,7 +162,7 @@ public extension ObjectStorages {
         defer { lock.unlock() }
         let id = id ?? requireDefaultID()
         var logger = logger
-        logger[metadataKey: "file-storage-id"] = .string(id.string)
+        logger[metadataKey: "object-storage-id"] = .string(id.string)
         let configuration = requireConfiguration(for: id)
         let context = ObjectStorageContext(
             configuration: configuration,
