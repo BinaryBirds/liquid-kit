@@ -30,15 +30,17 @@ final class MockObjectStorage: ObjectStorage {
         sequence: T,
         size: UInt,
         key: String,
-        checksum: String?
+        checksum: String?,
+        timeout: TimeAmount
     ) async throws where T.Element == ByteBuffer {
         callStack.append(#function)
     }
 
     func upload(
         key: String,
-        buffer: NIOCore.ByteBuffer,
-        checksum: String?
+        buffer: ByteBuffer,
+        checksum: String?,
+        timeout: TimeAmount
     ) async throws {
         callStack.append(#function)
     }
@@ -66,7 +68,8 @@ final class MockObjectStorage: ObjectStorage {
         key: String,
         buffer: ByteBuffer,
         uploadId: MultipartUpload.ID,
-        partNumber: Int
+        partNumber: Int,
+        timeout: TimeAmount
     ) async throws -> MultipartUpload.Chunk {
         callStack.append(#function)
         return .init(id: "", number: 1)
@@ -83,7 +86,8 @@ final class MockObjectStorage: ObjectStorage {
         key: String,
         uploadId: MultipartUpload.ID,
         checksum: String?,
-        chunks: [MultipartUpload.Chunk]
+        chunks: [MultipartUpload.Chunk],
+        timeout: TimeAmount
     ) async throws {
         callStack.append(#function)
     }
@@ -102,14 +106,17 @@ final class MockObjectStorage: ObjectStorage {
     
     func download(
         key: String,
-        range: ClosedRange<UInt>?
+        range: ClosedRange<UInt>?,
+        timeout: TimeAmount
     ) async throws -> ByteBuffer {
         callStack.append(#function)
         return .init()
     }
 
     func download(
-        key: String
+        key: String,
+        chunkSize: UInt,
+        timeout: TimeAmount
     ) -> AsyncThrowingStream<ByteBuffer, Error> {
         callStack.append(#function)
         

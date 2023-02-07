@@ -36,16 +36,19 @@ final class LiquidKitTests: XCTestCase {
     }
 
     func testMockDriverUpload() async throws {
-        let fs = createMockDriver()
-
+        let os = createMockDriver()
+        let contents = "file storage test"
         let key = "test.txt"
-        let data = Data("file storage test".utf8)
-        _ = try await fs.upload(
+        
+        try await os.upload(
             key: key,
-            buffer: .init(data: data),
-            checksum: nil
+            buffer: .init(string: contents),
+            checksum: nil,
+            timeout: .seconds(30)
         )
     
-        XCTAssertEqual(fs.callStack, ["upload(key:buffer:checksum:)"])
+        XCTAssertEqual(os.callStack, [
+            "upload(key:buffer:checksum:timeout:)"
+        ])
     }
 }

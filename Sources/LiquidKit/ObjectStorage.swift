@@ -31,12 +31,13 @@ public protocol ObjectStorage {
         key: String
     ) -> String
 
-    
+    ///
     func upload<T: AsyncSequence & Sendable>(
         sequence: T,
         size: UInt,
         key: String,
-        checksum: String?
+        checksum: String?,
+        timeout: TimeAmount
     ) async throws where T.Element == ByteBuffer
 
     ///
@@ -50,21 +51,9 @@ public protocol ObjectStorage {
     func upload(
         key: String,
         buffer: ByteBuffer,
-        checksum: String?
+        checksum: String?,
+        timeout: TimeAmount
     ) async throws
-
-    ///
-    /// Check if a given key exists
-    ///
-    /// - Parameters:
-    ///     - key: The unique key for the uploaded file
-    ///
-    /// - Returns:
-    ///     A Bool value indicating the file's existence
-    ///
-    func exists(
-        key: String
-    ) async -> Bool
 
     ///
     /// Returns a file content for
@@ -80,12 +69,28 @@ public protocol ObjectStorage {
     ///
     func download(
         key source: String,
-        range: ClosedRange<UInt>?
+        range: ClosedRange<UInt>?,
+        timeout: TimeAmount
     ) async throws -> ByteBuffer
 
     func download(
-        key: String
+        key: String,
+        chunkSize: UInt,
+        timeout: TimeAmount
     ) -> AsyncThrowingStream<ByteBuffer, Error>
+
+    ///
+    /// Check if a given key exists
+    ///
+    /// - Parameters:
+    ///     - key: The unique key for the uploaded file
+    ///
+    /// - Returns:
+    ///     A Bool value indicating the file's existence
+    ///
+    func exists(
+        key: String
+    ) async -> Bool
 
     ///
     /// Copy a file using a source key to a given destination key
@@ -128,12 +133,13 @@ public protocol ObjectStorage {
         key: String
     ) async throws -> MultipartUpload.ID
     
-    
+
     func uploadMultipartChunk(
         key: String,
         buffer: ByteBuffer,
         uploadId: MultipartUpload.ID,
-        partNumber: Int
+        partNumber: Int,
+        timeout: TimeAmount
     ) async throws -> MultipartUpload.Chunk
 
     
@@ -147,6 +153,7 @@ public protocol ObjectStorage {
         key: String,
         uploadId: MultipartUpload.ID,
         checksum: String?,
-        chunks: [MultipartUpload.Chunk]
+        chunks: [MultipartUpload.Chunk],
+        timeout: TimeAmount
     ) async throws
 }
