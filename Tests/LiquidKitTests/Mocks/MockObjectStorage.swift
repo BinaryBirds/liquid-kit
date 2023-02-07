@@ -26,6 +26,15 @@ final class MockObjectStorage: ObjectStorage {
         MockChecksumCalculator()
     }
     
+    func upload<T: AsyncSequence & Sendable>(
+        sequence: T,
+        size: UInt,
+        key: String,
+        checksum: String?
+    ) async throws where T.Element == ByteBuffer {
+        callStack.append(#function)
+    }
+
     func upload(
         key: String,
         buffer: NIOCore.ByteBuffer,
@@ -97,6 +106,16 @@ final class MockObjectStorage: ObjectStorage {
     ) async throws -> ByteBuffer {
         callStack.append(#function)
         return .init()
+    }
+
+    func download(
+        key: String
+    ) -> AsyncThrowingStream<ByteBuffer, Error> {
+        callStack.append(#function)
+        
+        return .init { c in
+            c.finish()
+        }
     }
     
     func copy(key: String, to: String) async throws -> String {

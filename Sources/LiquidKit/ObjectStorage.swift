@@ -31,6 +31,14 @@ public protocol ObjectStorage {
         key: String
     ) -> String
 
+    
+    func upload<T: AsyncSequence & Sendable>(
+        sequence: T,
+        size: UInt,
+        key: String,
+        checksum: String?
+    ) async throws where T.Element == ByteBuffer
+
     ///
     /// Uploads the data under the given key
     ///
@@ -74,6 +82,10 @@ public protocol ObjectStorage {
         key source: String,
         range: ClosedRange<UInt>?
     ) async throws -> ByteBuffer
+
+    func download(
+        key: String
+    ) -> AsyncThrowingStream<ByteBuffer, Error>
 
     ///
     /// Copy a file using a source key to a given destination key
