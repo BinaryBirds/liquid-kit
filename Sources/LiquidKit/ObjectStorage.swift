@@ -31,7 +31,6 @@ public protocol ObjectStorage {
         key: String
     ) -> String
 
-    ///
     func upload<T: AsyncSequence & Sendable>(
         sequence: T,
         size: UInt,
@@ -75,6 +74,7 @@ public protocol ObjectStorage {
 
     func download(
         key: String,
+        range: ClosedRange<UInt>?,
         chunkSize: UInt,
         timeout: TimeAmount
     ) -> AsyncThrowingStream<ByteBuffer, Error>
@@ -142,6 +142,14 @@ public protocol ObjectStorage {
         timeout: TimeAmount
     ) async throws -> MultipartUpload.Chunk
 
+    func uploadMultipartChunk<T: AsyncSequence & Sendable>(
+        key: String,
+        sequence: T,
+        size: UInt,
+        uploadId: MultipartUpload.ID,
+        partNumber: Int,
+        timeout: TimeAmount
+    ) async throws -> MultipartUpload.Chunk where T.Element == ByteBuffer
     
     func cancelMultipartUpload(
         key: String,

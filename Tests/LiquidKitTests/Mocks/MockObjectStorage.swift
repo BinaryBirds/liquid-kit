@@ -26,6 +26,15 @@ final class MockObjectStorage: ObjectStorage {
         MockChecksumCalculator()
     }
     
+    func upload(
+        key: String,
+        buffer: ByteBuffer,
+        checksum: String?,
+        timeout: TimeAmount
+    ) async throws {
+        callStack.append(#function)
+    }
+    
     func upload<T: AsyncSequence & Sendable>(
         sequence: T,
         size: UInt,
@@ -33,15 +42,6 @@ final class MockObjectStorage: ObjectStorage {
         checksum: String?,
         timeout: TimeAmount
     ) async throws where T.Element == ByteBuffer {
-        callStack.append(#function)
-    }
-
-    func upload(
-        key: String,
-        buffer: ByteBuffer,
-        checksum: String?,
-        timeout: TimeAmount
-    ) async throws {
         callStack.append(#function)
     }
     
@@ -71,6 +71,18 @@ final class MockObjectStorage: ObjectStorage {
         partNumber: Int,
         timeout: TimeAmount
     ) async throws -> MultipartUpload.Chunk {
+        callStack.append(#function)
+        return .init(id: "", number: 1)
+    }
+    
+    func uploadMultipartChunk<T: AsyncSequence & Sendable>(
+        key: String,
+        sequence: T,
+        size: UInt,
+        uploadId: MultipartUpload.ID,
+        partNumber: Int,
+        timeout: TimeAmount
+    ) async throws -> MultipartUpload.Chunk where T.Element == ByteBuffer {
         callStack.append(#function)
         return .init(id: "", number: 1)
     }
@@ -115,6 +127,7 @@ final class MockObjectStorage: ObjectStorage {
 
     func download(
         key: String,
+        range: ClosedRange<UInt>?,
         chunkSize: UInt,
         timeout: TimeAmount
     ) -> AsyncThrowingStream<ByteBuffer, Error> {
