@@ -74,7 +74,6 @@ public protocol ObjectStorage {
 
     func download(
         key: String,
-        range: ClosedRange<UInt>?,
         chunkSize: UInt,
         timeout: TimeAmount
     ) -> AsyncThrowingStream<ByteBuffer, Error>
