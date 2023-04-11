@@ -17,6 +17,9 @@ public protocol ObjectStorage {
 
     /// Checksum calculator for upload validations
     func createChecksumCalculator() -> ChecksumCalculator
+    
+    /// Returns the available disk space
+    func getAvailableSpace() -> UInt64
 
     ///
     /// Resolves a key to a fileURL string

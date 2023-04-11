@@ -22,6 +22,10 @@ final class MockObjectStorage: ObjectStorage {
     
     // MARK: - api
     
+    func getAvailableSpace() -> UInt64 {
+        .max
+    }
+    
     func createChecksumCalculator() -> ChecksumCalculator {
         MockChecksumCalculator()
     }
